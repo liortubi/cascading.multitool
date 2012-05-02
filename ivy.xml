@@ -37,7 +37,7 @@
 
   <dependencies>
     <dependency org="cascading" name="cascading-core" rev="2.0.0-wip-+" conf="default"/>
-    <dependency org="cascading" name="cascading-hadoop" rev="2.0.0-wip-+" conf="default"/>
+    <dependency org="cascading" name="cascading-hadoop" rev="2.0.0-wip-+" conf="default" transitive="false"/>
     <dependency org="cascading" name="cascading-test" rev="2.0.0-wip-+" conf="test->default"/>
 
     <dependency org="org.apache.hadoop" name="hadoop-core" rev="0.20.2" conf="test->default">
