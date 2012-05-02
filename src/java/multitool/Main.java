@@ -20,11 +20,8 @@
 
 package multitool;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.String;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -202,7 +199,7 @@ public class Main
 
       String releaseMajor = versionProperties.getProperty( "cascading.release.major" );
       String releaseMinor = versionProperties.getProperty( "cascading.release.minor", null );
-      String releaseBuild = versionProperties.getProperty( "build.number", null );
+      String releaseBuild = versionProperties.getProperty( "cascading.build.number", null );
       String releaseFull = null;
 
       if( releaseMinor == null )
@@ -223,32 +220,7 @@ public class Main
 
   private static void printLicense()
     {
-    try
-      {
-      InputStream stream = Main.class.getResourceAsStream( "/LICENSE.txt" );
-      BufferedReader reader = new BufferedReader( new InputStreamReader( stream ) );
-
-      System.out.print( "This release is licensed under the " );
-
-      String line = reader.readLine();
-
-      while( line != null )
-        {
-        if( line.matches( "^Binary License:.*$" ) )
-          {
-          System.out.println( line.substring( 15 ).trim() );
-          break;
-          }
-
-        line = reader.readLine();
-        }
-
-      reader.close();
-      }
-    catch( IOException exception )
-      {
-      System.out.println( "Unspecified License" );
-      }
+    System.out.print( "This release is licensed under the Apache Software License 2.0." );
     }
 
   private static void printFactoryUsage( Factory[] factories )
