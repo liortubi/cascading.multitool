@@ -21,7 +21,7 @@
   ~ along with Cascading.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<project name="multitool" default="compile" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="multitool" default="retrieve" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
 
   <dirname property="multitool.basedir" file="${ant.file.multitool}"/>
 
@@ -241,7 +241,7 @@
 
   <target name="publish" depends="clean,retrieve,test,tar,s3-package"/>
 
-  <target name="retrieve">
+  <target name="retrieve" description="use Ivy to download dependencies">
     <ivy:settings id="ivy.conjars.settings" url="http://conjars.org/repo/ivysettings.xml"/>
 
     <ivy:retrieve file="${multitool.basedir}/ivy.xml" settingsRef="ivy.conjars.settings" conf="default"

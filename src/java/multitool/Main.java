@@ -24,6 +24,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.String;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -95,14 +96,27 @@ public class Main
                                                           new UniqueFactory( "unique" )};
 
   static Map<String, Factory> factoryMap = new HashMap<String, Factory>();
+  static Map<String, Option> optionMap = new HashMap<String, Option>();
 
   static
     {
+    optionMap.put( "-h", new Option( "-h", false, null ) );
+    optionMap.put( "--help", new Option( "--help", false, null ) );
+    optionMap.put( "-t", new Option( "-t", false, null ) );
+    optionMap.put( "--text", new Option( "--text", false, null ) );
+    optionMap.put( "--dot", new Option( "--dot", true, null ) );
+
     for( Factory factory : TAP_FACTORIES )
-      factoryMap.put( factory.getAlias(), factory );
+      {
+        factoryMap.put( factory.getAlias(), factory );
+        optionMap.put( factory.getAlias(), new Option( factory.getAlias(), true, factory ) );
+      }
 
     for( Factory factory : PIPE_FACTORIES )
-      factoryMap.put( factory.getAlias(), factory );
+      {
+        factoryMap.put( factory.getAlias(), factory );
+        optionMap.put( factory.getAlias(), new Option( factory.getAlias(), true, factory ) );
+      }
     }
 
   private Map<String, String> options;
@@ -115,21 +129,29 @@ public class Main
 
     for( String arg : args )
       {
-      int index = arg.indexOf( "=" );
+      String arg_name = arg;
+      String arg_verb = arg;
+      String arg_data = null;
 
-      if( arg.startsWith( "-" ) )
+      int dot_index = arg.indexOf( "." );
+      int equals_index = arg.indexOf( "=" );
+
+      if( dot_index != -1 )
+        arg_name = arg.substring( 0, dot_index );
+
+      if( equals_index != -1 )
         {
-        if( index != -1 )
-          options.put( arg.substring( 0, index ), arg.substring( index + 1 ) );
-        else
-          options.put( arg, null );
+          arg_name = arg.substring( 0, equals_index );
+          arg_verb = arg.substring( 0, equals_index );
+          arg_data = arg.substring( equals_index + 1 );
         }
-      else
+
+      if( optionMap.keySet().contains( arg_name ) )
         {
-        if( index != -1 )
-          params.add( new String[]{arg.substring( 0, index ), arg.substring( index + 1 )} );
+        if( arg.startsWith( "-" ) )
+          options.put( arg_verb, arg_data );
         else
-          params.add( new String[]{arg, null} );
+          params.add( new String[]{ arg_verb, arg_data } );
         }
       }
 
@@ -142,7 +164,6 @@ public class Main
       System.out.println( exception.getMessage() );
       printUsage();
       }
-
     }
 
   private static void printUsage()
@@ -155,11 +176,12 @@ public class Main
     System.out.println( "" );
     System.out.println( "Usage:" );
 
-    System.out.println( "options:" );
-    System.out.println( String.format( "  %-25s  %s", "-dot=<file>", "filename to write a plan DOT file then exit" ) );
-    System.out.println( "taps:" );
+    System.out.println( "\n options:" );
+    System.out.println( "-h" );
+    System.out.println( String.format( "  %-25s  %s", "--dot=<file>", "filename to write a plan DOT file then exit" ) );
+    System.out.println( "\n taps:" );
     printFactoryUsage( TAP_FACTORIES );
-    System.out.println( "operations:" );
+    System.out.println( "\n operations:" );
     printFactoryUsage( PIPE_FACTORIES );
 
     System.exit( 1 );
@@ -203,7 +225,7 @@ public class Main
     {
     try
       {
-      InputStream stream = Main.class.getResourceAsStream( "/MULTITOOL-LICENSE.txt" );
+      InputStream stream = Main.class.getResourceAsStream( "/LICENSE.txt" );
       BufferedReader reader = new BufferedReader( new InputStreamReader( stream ) );
 
       System.out.print( "This release is licensed under the " );
@@ -252,14 +274,12 @@ public class Main
 
     this.params = params;
 
-    validateParams();
+    if( this.params.size() > 0 )
+      validateParams();
     }
 
   private void validateParams()
     {
-    if( params.size() == 0 )
-      throw new IllegalArgumentException( "error: no args given" );
-
     for( String[] param : params )
       {
       String alias = param[ 0 ].replaceFirst( "^([^.]+).*$", "$1" );
@@ -313,26 +333,38 @@ public class Main
 
   public void execute()
     {
+    if(( this.params.size() == 0 ) || options.containsKey("-h") || options.containsKey("--help") )
+      {
+      printUsage();
+      return;
+      }
+
+    String dot_key = "--dot";
+
     try
       {
       Flow flow = plan( getDefaultProperties() );
 
-      if( options.containsKey( "-dot" ) )
+      if( options.containsKey( dot_key ) )
         {
-        flow.writeDOT( options.get( "-dot" ) );
-        System.out.println( "wrote DOT file to: " + options.get( "-dot" ) );
+        String dot_file = options.get( dot_key );
+        flow.writeDOT( dot_file );
+        System.out.println( "wrote DOT file to: " + dot_file );
         System.out.println( "exiting" );
-        return;
         }
-
-      flow.complete();
+      else
+        {
+        flow.complete();
+        }
       }
     catch( PlannerException exception )
       {
-      if( options.containsKey( "-dot" ) )
+      if( options.containsKey( dot_key ) )
         {
-        exception.writeDOT( options.get( "-dot" ) );
-        System.out.println( "wrote DOT file to: " + options.get( "-dot" ) );
+        String dot_file = options.get( dot_key );
+
+        exception.writeDOT( dot_file );
+        System.out.println( "wrote DOT file to: " + dot_file );
         }
 
       throw exception;
@@ -378,7 +410,7 @@ public class Main
       }
 
     if( sources.isEmpty() )
-      throw new IllegalArgumentException( "error: must have atleast one source" );
+      throw new IllegalArgumentException( "error: must have at least one source" );
 
     if( sinks.isEmpty() )
       throw new IllegalArgumentException( "error: must have one sink" );
