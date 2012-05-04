@@ -325,9 +325,15 @@ public class Main
       }
 
     String dot_key = "--dot";
+    String text_key = "--text";
 
     try
       {
+      if( options.containsKey( text_key ) )
+        {
+          // stub for future impl of TextDelimited
+        }
+
       Flow flow = plan( getDefaultProperties() );
 
       if( options.containsKey( dot_key ) )
