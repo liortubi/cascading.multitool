@@ -38,4 +38,19 @@ public class Option
       this.needs_data = needs_data;
       this.factory = factory;
     }
+
+  public boolean needsData ()
+    {
+      return this.needs_data;
+    }
+
+  public boolean isValid (String arg_verb, String arg_data )
+    {
+      if ( needsData() && ( arg_data == null ) )
+        return false;
+      else if ( !needsData() && ( arg_data != null ) )
+        return false;
+      else
+        return true;
+    }
   }

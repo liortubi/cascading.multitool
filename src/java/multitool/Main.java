@@ -99,20 +99,19 @@ public class Main
     {
     optionMap.put( "-h", new Option( "-h", false, null ) );
     optionMap.put( "--help", new Option( "--help", false, null ) );
-    optionMap.put( "-t", new Option( "-t", false, null ) );
     optionMap.put( "--text", new Option( "--text", false, null ) );
     optionMap.put( "--dot", new Option( "--dot", true, null ) );
 
     for( Factory factory : TAP_FACTORIES )
       {
-        factoryMap.put( factory.getAlias(), factory );
-        optionMap.put( factory.getAlias(), new Option( factory.getAlias(), true, factory ) );
+      factoryMap.put( factory.getAlias(), factory );
+      optionMap.put( factory.getAlias(), new Option( factory.getAlias(), true, factory ) );
       }
 
     for( Factory factory : PIPE_FACTORIES )
       {
-        factoryMap.put( factory.getAlias(), factory );
-        optionMap.put( factory.getAlias(), new Option( factory.getAlias(), true, factory ) );
+      factoryMap.put( factory.getAlias(), factory );
+      optionMap.put( factory.getAlias(), new Option( factory.getAlias(), true, factory ) );
       }
     }
 
@@ -124,46 +123,54 @@ public class Main
     Map<String, String> options = new LinkedHashMap<String, String>();
     List<String[]> params = new LinkedList<String[]>();
 
-    for( String arg : args )
+    try
       {
-      String arg_name = arg;
-      String arg_verb = arg;
-      String arg_data = null;
-
-      int dot_index = arg.indexOf( "." );
-      int equals_index = arg.indexOf( "=" );
-
-      if( dot_index != -1 )
-        arg_name = arg.substring( 0, dot_index );
-
-      if( equals_index != -1 )
+      for( String arg : args )
         {
+        String arg_name = arg;
+        String arg_verb = arg;
+        String arg_data = null;
+
+        int equals_index = arg.indexOf( "=" );
+
+        if( equals_index != -1 )
+          {
           arg_name = arg.substring( 0, equals_index );
           arg_verb = arg.substring( 0, equals_index );
           arg_data = arg.substring( equals_index + 1 );
-        }
+          }
 
-      if( optionMap.keySet().contains( arg_name ) )
-        {
+        int dot_index = arg_name.indexOf( "." );
+
+        if( dot_index != -1 )
+          arg_name = arg_name.substring( 0, dot_index );
+
         if( arg.startsWith( "-" ) )
-          options.put( arg_verb, arg_data );
+          {
+          if( optionMap.keySet().contains( arg_name ) && optionMap.get( arg_name ).isValid( arg_verb, arg_data ) )
+            options.put( arg_verb, arg_data );
+          else
+            throw new IllegalArgumentException( "error: incorrect option or usage: " + arg );
+          }
         else
-          params.add( new String[]{ arg_verb, arg_data } );
+          {
+          if( optionMap.keySet().contains( arg_name ) )
+            params.add( new String[]{arg_verb, arg_data} );
+          else
+            throw new IllegalArgumentException( "error: incorrect parameter or usage: " + arg );
+          }
         }
-      }
 
-    try
-      {
       new Main( options, params ).execute();
       }
     catch( IllegalArgumentException exception )
       {
       System.out.println( exception.getMessage() );
-      printUsage();
+      printUsage( true );
       }
     }
 
-  private static void printUsage()
+  private static void printUsage( boolean is_error )
     {
     System.out.println( "multitool [param] [param] ..." );
 
@@ -174,14 +181,18 @@ public class Main
     System.out.println( "Usage:" );
 
     System.out.println( "\n options:" );
-    System.out.println( "-h" );
+    System.out.println( String.format( "  %-25s  %s", "-h|--help", "show this help text" ) );
+    System.out.println( String.format( "  %-25s  %s", "--text", "parse input as a text delimited file" ) );
     System.out.println( String.format( "  %-25s  %s", "--dot=<file>", "filename to write a plan DOT file then exit" ) );
     System.out.println( "\n taps:" );
     printFactoryUsage( TAP_FACTORIES );
     System.out.println( "\n operations:" );
     printFactoryUsage( PIPE_FACTORIES );
 
-    System.exit( 1 );
+    if( is_error )
+      System.exit( 1 );
+    else
+      System.exit( 0 );
     }
 
   private static void printCascadingVersion()
@@ -248,6 +259,8 @@ public class Main
 
     if( this.params.size() > 0 )
       validateParams();
+    else
+      throw new IllegalArgumentException( "error: no parameters" );
     }
 
   private void validateParams()
@@ -305,9 +318,9 @@ public class Main
 
   public void execute()
     {
-    if(( this.params.size() == 0 ) || options.containsKey("-h") || options.containsKey("--help") )
+    if( ( this.params.size() == 0 ) || options.containsKey( "-h" ) || options.containsKey( "--help" ) )
       {
-      printUsage();
+      printUsage( false );
       return;
       }
 
