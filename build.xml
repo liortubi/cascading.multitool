@@ -207,32 +207,32 @@
     </tar>
   </target>
 
-  <target name="s3-package" if="package.remote.bucket">
+  <target name="s3-package" if="publish.aws.properties">
 
     <taskdef name="S3Upload" classname="dak.ant.taskdefs.S3Upload"/>
 
-    <property file="${package.aws.properties}"/>
+    <property file="${publish.aws.properties}"/>
 
-    <echo message="http://${package.remote.bucket}/multitool/${ant.project.name}-${DSTAMP}.tgz"
-          file="${ant.project.name}-current.txt"/>
+    <echo message="http://${publish.bucket}/${ant.project.name}/2.0/${ant.project.name}-${DSTAMP}.tgz"
+          file="latest.txt"/>
 
     <S3Upload verbose="true"
-              accessId="${package.aws.accessId}"
-              secretKey="${package.aws.secretKey}"
-              bucket="${package.remote.bucket}"
-              prefix="${ant.project.name}/"
+              accessId="${publish.aws.accessId}"
+              secretKey="${publish.aws.secretKey}"
+              bucket="${publish.bucket}"
+              prefix="${ant.project.name}/2.0/"
               publicRead="true">
       <fileset file="${ant.project.name}-${DSTAMP}.tgz"/>
-      <fileset file="${ant.project.name}-current.txt"/>
+      <fileset file="latest.txt"/>
     </S3Upload>
 
-    <property name="package.remote.port" value="22"/>
-    <scp file="${ant.project.name}-current.txt"
-         remoteTofile="${package.remote.path}/${ant.project.name}/${ant.project.name}-${DSTAMP}.tgz"
-         keyfile="${package.remote.keyfile}"
-         passphrase="" port="${package.remote.port}" trust="true"/>
+    <property name="publish.remote.port" value="22"/>
+    <scp file="latest.txt"
+         remoteTofile="${publish.download.path}/${ant.project.name}/2.0/latest.txt"
+         keyfile="${publish.keyfile}"
+         passphrase="" port="${publish.remote.port}" trust="true"/>
 
-    <delete file="${ant.project.name}-current.txt"/>
+    <delete file="latest.txt"/>
 
   </target>
 
