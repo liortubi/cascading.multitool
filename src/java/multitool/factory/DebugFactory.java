@@ -44,12 +44,12 @@ public class DebugFactory extends PipeFactory
 
   public String[] getParameters()
     {
-    return new String[]{};
+    return new String[]{"prefix"};
     }
 
   public String[] getParametersUsage()
     {
-    return new String[]{};
+    return new String[]{"a value to distinguish which branch debug output is coming from"};
     }
 
   public Pipe addAssembly( String value, Map<String, String> subParams, Map<String, Pipe> pipes, Pipe pipe )
@@ -59,6 +59,12 @@ public class DebugFactory extends PipeFactory
     if( fields == null )
       fields = Fields.ALL;
 
-    return new Each( pipe, fields, new Debug() );
+    Debug filter;
+    if( subParams.containsKey( "prefix" ) )
+      filter = new Debug( subParams.get( "prefix" ) );
+    else
+      filter = new Debug();
+
+    return new Each( pipe, fields, filter );
     }
   }

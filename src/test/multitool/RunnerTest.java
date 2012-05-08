@@ -268,6 +268,7 @@ public class RunnerTest extends CascadingTestCase
     params.add( new String[]{"gen.delim", " "} );
 
     params.add( new String[]{"debug", ""} );
+    params.add( new String[]{"debug.prefix", "lhs"} );
 
     params.add( new String[]{"source", artistData} );
     params.add( new String[]{"source.name", "rhs"} );
@@ -278,6 +279,7 @@ public class RunnerTest extends CascadingTestCase
     params.add( new String[]{"gen.delim", " "} );
 
     params.add( new String[]{"debug", ""} );
+    params.add( new String[]{"debug.prefix", "rhs"} );
 
     params.add( new String[]{"join", ""} );
     params.add( new String[]{"join.lhs", "lhs"} );
@@ -295,7 +297,7 @@ public class RunnerTest extends CascadingTestCase
     flow.complete();
 
     TupleEntryIterator iterator = flow.openTapForRead( new Hfs( new TextLine(), flow.getSink().getIdentifier().toString() ) );
-    validateLength( iterator, 5, 2, Pattern.compile( "^[0-9]+(\\t[^\\t]*){2}$" ) ); // we removed one line
+    validateLength( iterator, 5, 2, Pattern.compile( "^[0-9]+(\\t[^\\t]*){3}$" ) ); // we removed one line
     iterator.close();
     }
   }
