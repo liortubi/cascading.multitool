@@ -99,7 +99,6 @@ public class Main
     {
     optionMap.put( "-h", new Option( "-h", false, null ) );
     optionMap.put( "--help", new Option( "--help", false, null ) );
-    optionMap.put( "--text", new Option( "--text", false, null ) );
     optionMap.put( "--dot", new Option( "--dot", true, null ) );
 
     for( Factory factory : TAP_FACTORIES )
@@ -182,7 +181,6 @@ public class Main
 
     System.out.println( "\n options:" );
     System.out.println( String.format( "  %-25s  %s", "-h|--help", "show this help text" ) );
-    System.out.println( String.format( "  %-25s  %s", "--text", "parse input as a text delimited file" ) );
     System.out.println( String.format( "  %-25s  %s", "--dot=<file>", "filename to write a plan DOT file then exit" ) );
     System.out.println( "\n taps:" );
     printFactoryUsage( TAP_FACTORIES );
@@ -257,7 +255,12 @@ public class Main
 
     this.params = params;
 
-    if( this.params.size() > 0 )
+    if( ( this.params.size() == 0 ) || options.containsKey( "-h" ) || options.containsKey( "--help" ) )
+      {
+      printUsage( false );
+      return;
+      }
+    else if( this.params.size() > 0 )
       validateParams();
     else
       throw new IllegalArgumentException( "error: no parameters" );
@@ -277,7 +280,7 @@ public class Main
       throw new IllegalArgumentException( "error: first command must be source: " + params.get( 0 )[ 0 ] );
 
     if( !params.get( params.size() - 1 )[ 0 ].startsWith( "sink" ) )
-      throw new IllegalArgumentException( "error: last command must be sink: " + params.get( params.size() - 1 ) );
+      throw new IllegalArgumentException( "error: last command must be sink: " + params.get( params.size() - 1 )[ 0 ] );
     }
 
   private Properties getDefaultProperties()

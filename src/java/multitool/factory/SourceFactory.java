@@ -91,6 +91,6 @@ public class SourceFactory extends TapFactory
     {
     return new String[]{"name of this source, required if more than one",
                         "set true if the first line should be skipped",
-                        "is a tuple sequence file with N fields, or the value 'true'"};
+                        "read from a sequence file instead of text; specify N fields, or 'true'"};
     }
   }
