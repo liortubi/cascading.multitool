@@ -26,7 +26,9 @@ import cascading.operation.Identity;
 import cascading.operation.expression.ExpressionFilter;
 import cascading.pipe.Each;
 import cascading.pipe.Pipe;
+import cascading.scheme.Scheme;
 import cascading.scheme.hadoop.SequenceFile;
+import cascading.scheme.hadoop.TextDelimited;
 import cascading.scheme.hadoop.TextLine;
 import cascading.tap.Tap;
 import cascading.tap.hadoop.Hfs;
@@ -46,15 +48,24 @@ public class SourceFactory extends TapFactory
     {
     String numFields = getString( params, "seqfile", "" );
 
-    if( containsKey( params, "seqfile" ) || numFields.equalsIgnoreCase( "true" ) )
+    if( containsKey( params, "delim" ) )
+      {
+      String delim = getString( params, "delim", "\t" );
+      boolean hasHeader = getBoolean( params, "hasheader" );
+      Scheme scheme = new TextDelimited( Fields.ALL, null, hasHeader, hasHeader, delim );
+      return new Hfs( scheme, value );
+      }
+    else if( containsKey( params, "seqfile" ) || numFields.equalsIgnoreCase( "true" ) )
       return new Hfs( new SequenceFile( Fields.ALL ), value );
 
-    if( numFields == null || numFields.isEmpty() )
+    else if( numFields == null || numFields.isEmpty() )
       return new Hfs( new TextLine( Fields.size( 2 ) ), value );
+    else
+      {
+      int size = Integer.parseInt( numFields );
 
-    int size = Integer.parseInt( numFields );
-
-    return new Hfs( new SequenceFile( Fields.size( size ) ), value );
+      return new Hfs( new SequenceFile( Fields.size( size ) ), value );
+      }
     }
 
   public Pipe addAssembly( String value, Map<String, String> subParams, Pipe pipe )
@@ -71,7 +82,9 @@ public class SourceFactory extends TapFactory
 
     String sequence = getString( subParams, "seqfile" );
 
-    if( sequence == null || sequence.isEmpty() )
+    if( getBoolean( subParams, "hasheader" ) )
+      pipe = new Each( pipe, Fields.ALL, new Identity() );
+    else if( sequence == null || sequence.isEmpty() )
       pipe = new Each( pipe, new Fields( 1 ), new Identity() );
 
     return pipe;
@@ -84,13 +97,17 @@ public class SourceFactory extends TapFactory
 
   public String[] getParameters()
     {
-    return new String[]{"name", "skipheader", "seqfile"};
+    return new String[]{"name", "skipheader", "hasheader", "delim", "seqfile"};
     }
 
   public String[] getParametersUsage()
     {
-    return new String[]{"name of this source, required if more than one",
-                        "set true if the first line should be skipped",
-                        "read from a sequence file instead of text; specify N fields, or 'true'"};
+    return new String[]{
+      "name of this source, required if more than one",
+      "set true if the first line should be skipped",
+      "set true if the first line should be used for field names",
+      "delimiter used to separate fields",
+      "read from a sequence file instead of text; specify N fields, or 'true'"
+    };
     }
   }

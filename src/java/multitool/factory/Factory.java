@@ -70,7 +70,14 @@ public abstract class Factory implements Serializable
     Comparable[] comparables = new Comparable[ split.length ];
 
     for( int i = 0; i < split.length; i++ )
-      comparables[ i ] = Integer.parseInt( split[ i ] );
+      try
+        {
+        comparables[ i ] = Integer.parseInt( split[ i ] );
+        }
+      catch( NumberFormatException exception )
+        {
+        comparables[ i ] = split[ i ];
+        }
 
     return new Fields( comparables );
     }

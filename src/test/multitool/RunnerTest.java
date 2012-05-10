@@ -40,6 +40,7 @@ public class RunnerTest extends CascadingTestCase
   public static final String trackData = "data/track.100.txt";
   public static final String topicData = "data/topic.100.txt";
   public static final String artistData = "data/artist.100.txt";
+  public static final String songsData = "data/songs.100.txt";
 
   public static final String outputPath = "build/test/output";
 
@@ -63,6 +64,28 @@ public class RunnerTest extends CascadingTestCase
 
     TupleEntryIterator iterator = flow.openTapForRead( new Hfs( new TextLine(), flow.getSink().getIdentifier().toString() ) );
     validateLength( iterator, 99, 2, Pattern.compile( "^[0-9]+(\\t[^\\t]*){11}$" ) ); // we removed one line
+    iterator.close();
+    }
+
+  public void testDelimited() throws IOException
+    {
+    List<String[]> params = new LinkedList<String[]>();
+
+    params.add( new String[]{"source", songsData} );
+    params.add( new String[]{"source.delim", null} );
+    params.add( new String[]{"source.hasheader", "true"} );
+
+    params.add( new String[]{"sink", outputPath + "/delim"} );
+    params.add( new String[]{"sink.replace", "true"} );
+    params.add( new String[]{"sink.writeheader", "true"} );
+    params.add( new String[]{"sink.select", "name,album"} );
+
+    Flow flow = new Main( params ).plan( new Properties() );
+
+    flow.complete();
+
+    TupleEntryIterator iterator = flow.openTapForRead( new Hfs( new TextLine(), flow.getSink().getIdentifier().toString() ) );
+    validateLength( iterator, 32, 2, Pattern.compile( "^[0-9]+(\\t[^\\t]*){2}$" ) ); // we removed one line
     iterator.close();
     }
 

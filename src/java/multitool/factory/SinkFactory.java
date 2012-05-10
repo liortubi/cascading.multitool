@@ -90,11 +90,13 @@ public class SinkFactory extends TapFactory
 
   public String[] getParametersUsage()
     {
-    return new String[]{"fields to sink",
-                        "set true if output should be overwritten",
-                        "compression: enable, disable, or default",
-                        "set true to write field names as the first line",
-                        "delimiter used to separate fields",
-                        "write to a sequence file instead of text; writeheader, delim, and compress are ignored"};
+    return new String[]{
+      "fields to sink",
+      "set true if output should be overwritten",
+      "compression: enable, disable, or default",
+      "set true to write field names as the first line",
+      "delimiter used to separate fields",
+      "write to a sequence file instead of text; writeheader, delim, and compress are ignored"
+    };
     }
   }
