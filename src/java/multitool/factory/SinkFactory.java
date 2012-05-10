@@ -49,7 +49,8 @@ public class SinkFactory extends TapFactory
     if( getBoolean( params, "replace" ) )
       mode = SinkMode.REPLACE;
 
-    Fields sinkFields = asFields( getString( params, "select" ) );
+    String select = getString( params, "select" );
+    Fields sinkFields = asFields( select );
 
     if( sinkFields == null )
       sinkFields = Fields.ALL;
@@ -59,9 +60,10 @@ public class SinkFactory extends TapFactory
     if( !containsKey( params, "seqfile" ) )
       {
       String compress = getString( params, "compress", TextLine.Compress.DEFAULT.toString() );
+      boolean writeHeader = getBoolean( params, "writeheader" );
       String delim = getString( params, "delim", "\t" );
       TextLine.Compress compressEnum = TextLine.Compress.valueOf( compress.toUpperCase() );
-      scheme = new TextDelimited( sinkFields, compressEnum, delim );
+      scheme = new TextDelimited( sinkFields, compressEnum, writeHeader, delim );
       }
     else
       {
@@ -83,15 +85,16 @@ public class SinkFactory extends TapFactory
 
   public String[] getParameters()
     {
-    return new String[]{"select", "replace", "compress", "delim", "seqfile"};
+    return new String[]{"select", "replace", "compress", "writeheader", "delim", "seqfile"};
     }
 
   public String[] getParametersUsage()
     {
     return new String[]{"fields to sink",
-                        "set true of output should be overwritten",
+                        "set true if output should be overwritten",
                         "compression: enable, disable, or default",
+                        "set true to write field names as the first line",
                         "delimiter used to separate fields",
-                        "write to a sequence file instead of text; delim and compress are ignored"};
+                        "write to a sequence file instead of text; writeheader, delim, and compress are ignored"};
     }
   }
