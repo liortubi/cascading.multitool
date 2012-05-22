@@ -86,6 +86,8 @@ directory.
 Examples
 --------
 
+For more detailed examples of using Multitool, see also: http://cascading.org/multitool/
+
 Copying:
 
     $ ./bin/multitool source=input.txt sink=outputDir
@@ -106,8 +108,6 @@ For a more complex example:
 
 This will find all years in the input file, count them, and sort them
 by counts.
-
-See also: http://new.cascading.org/multitool/
 
 Building
 --------
