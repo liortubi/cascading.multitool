@@ -72,15 +72,31 @@ path:
 
     $ hadoop jar multitool-<release-date>.jar <args>
 
-If no args are given, a comprehensive list of commands will be
-printed.
-
-Or if Multitool has been installed based on the instructions above:
+...or if Multitool has been installed based on the instructions above:
 
     $ multitool source=data/artist.100.txt cut=0 sink=output
 
 This will cut the first fields out of the file `artists.100.txt` and
 save the results to `output` file.
+
+If no args are given, a comprehensive list of commands will be
+printed. That list is also available as `COMMANDS.md` in this
+directory.
+
+Examples
+--------
+
+Copying:
+
+    $ ./bin/multitool source=input.txt sink=outputDir
+
+Copying while removing the first header line, and overwriting output:
+
+    $ ./bin/multitool source=input.txt source.skipheader=true sink=outputDir sink.replace=true
+
+Filter out data:
+
+    $ ./bin/multitool source=input.txt "reject=some words" sink=outputDir
 
 For a more complex example:
 
@@ -91,20 +107,7 @@ For a more complex example:
 This will find all years in the input file, count them, and sort them
 by counts.
 
-Examples
---------
-
-Copying:
-
-    args = source=input.txt sink=outputDir
-
-Copying while removing the first header line, and overwriting output:
-
-    args = source=input.txt source.skipheader=true sink=outputDir sink.replace=true
-
-Filter out data:
-
-    args = source=input.txt "reject=some words" sink=outputDir
+See also: http://new.cascading.org/multitool/
 
 Building
 --------

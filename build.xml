@@ -248,4 +248,10 @@
                   pattern="${build.dir}/deps/[artifact]-[revision].[ext]" sync="true"/>
   </target>
 
+  <target name="markdown" depends="jar" description="update the CLI reference file as GitHub markdown">
+    <exec executable="${scripts.dir}/multitool" failonerror="true" output="${multitool.basedir}/COMMANDS.md" errorproperty="md.errors">
+      <arg value="--markdown"/>
+    </exec>
+  </target>
+
 </project>

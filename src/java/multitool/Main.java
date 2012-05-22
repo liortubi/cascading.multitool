@@ -99,6 +99,7 @@ public class Main
     {
     optionMap.put( "-h", new Option( "-h", false, null ) );
     optionMap.put( "--help", new Option( "--help", false, null ) );
+    optionMap.put( "--markdown", new Option( "--markdown", false, null ) );
     optionMap.put( "--dot", new Option( "--dot", true, null ) );
 
     for( Factory factory : TAP_FACTORIES )
@@ -165,27 +166,47 @@ public class Main
     catch( IllegalArgumentException exception )
       {
       System.out.println( exception.getMessage() );
-      printUsage( true );
+      printUsage( true, false );
       }
     }
 
-  private static void printUsage( boolean is_error )
+  private static void printUsage( boolean is_error, boolean gen_markdown )
     {
-    System.out.println( "multitool [param] [param] ..." );
+    if( gen_markdown )
+      {
+      System.out.println( "Multitool - Command Line Reference" );
+      System.out.println( "==================================" );
 
-    printLicense();
-    printCascadingVersion();
+      System.out.println( "    multitool [param] [param] ..." );
+      System.out.println( "" );
+      System.out.println( "first tap must be a <code>source</code> and last tap must be a <code>sink</code>" );
+      System.out.println( "" );
+      System.out.println( "<table>" );
+      }
+    else
+      {
+      System.out.println( "multitool [param] [param] ..." );
+      System.out.println( "" );
+      System.out.println( "Usage:" );
+      System.out.println( "" );
+      System.out.println( "first tap must be a 'source' and last tap must be a 'sink'" );
+      }
+
+    printSubHeading( gen_markdown, "options:" );
+    printTableRow( gen_markdown, "-h|--help", "show this help text" );
+    printTableRow( gen_markdown, "--markdown", "generate help text as GitHub Flavored Markdown" );
+    printTableRow( gen_markdown, "--dot=filename", "write a plan DOT file, then exit" );
+    printSubHeading( gen_markdown, "taps:" );
+    printFactoryUsage( gen_markdown, TAP_FACTORIES );
+    printSubHeading( gen_markdown, "operations:" );
+    printFactoryUsage( gen_markdown, PIPE_FACTORIES );
+
+    if ( gen_markdown )
+      System.out.println( "</table>" );
 
     System.out.println( "" );
-    System.out.println( "Usage:" );
-
-    System.out.println( "\n options:" );
-    System.out.println( String.format( "  %-25s  %s", "-h|--help", "show this help text" ) );
-    System.out.println( String.format( "  %-25s  %s", "--dot=<file>", "filename to write a plan DOT file then exit" ) );
-    System.out.println( "\n taps:" );
-    printFactoryUsage( TAP_FACTORIES );
-    System.out.println( "\n operations:" );
-    printFactoryUsage( PIPE_FACTORIES );
+    printCascadingVersion();
+    printLicense();
 
     if( is_error )
       System.exit( 1 );
@@ -219,28 +240,44 @@ public class Main
         releaseFull = String.format( "%s.%s%s", releaseMajor, releaseMinor, releaseBuild );
 
 
-      System.out.println( String.format( "Using Cascading %s", releaseFull ) );
+      System.out.println( String.format( "Using Cascading %s\n", releaseFull ) );
       }
     catch( IOException exception )
       {
-      System.out.println( "Unknown Cascading Version" );
+      System.out.println( "Unknown Cascading Version\n" );
       }
     }
 
   private static void printLicense()
     {
-    System.out.print( "This release is licensed under the Apache Software License 2.0." );
+    System.out.println( "This release is licensed under the Apache Software License 2.0.\n" );
     }
 
-  private static void printFactoryUsage( Factory[] factories )
+  private static void printFactoryUsage( boolean gen_markdown, Factory[] factories )
     {
     for( Factory factory : factories )
       {
-      System.out.println( String.format( "  %-25s  %s", factory.getAlias(), factory.getUsage() ) );
+      printTableRow( gen_markdown, factory.getAlias(), factory.getUsage() );
 
       for( String[] strings : factory.getParametersAndUsage() )
-        System.out.println( String.format( "  %-25s  %s", strings[ 0 ], strings[ 1 ] ) );
+        printTableRow( gen_markdown, strings[ 0 ], strings[ 1 ] );
       }
+    }
+
+  private static void printSubHeading( boolean gen_markdown, String line )
+    {
+    if( gen_markdown )
+      System.out.println( String.format( "<tr><th>%s</th></tr>", line ) );
+    else
+      System.out.println( String.format( "\n%s", line ) );
+    }
+
+  private static void printTableRow( boolean gen_markdown, String option, String description )
+    {
+    if( gen_markdown )
+      System.out.println( String.format( "<tr><td><code>%s</code></td><td>%s</td></tr>", option, description ) );
+    else
+      System.out.println( String.format( "  %-25s  %s", option, description ) );
     }
 
   public Main( List<String[]> params )
@@ -255,15 +292,10 @@ public class Main
 
     this.params = params;
 
-    if( ( this.params.size() == 0 ) || options.containsKey( "-h" ) || options.containsKey( "--help" ) )
-      {
-      printUsage( false );
-      return;
-      }
-    else if( this.params.size() > 0 )
-      validateParams();
+    if( ( this.params.size() == 0 ) || options.containsKey( "-h" ) || options.containsKey( "--help" ) || options.containsKey( "--markdown" ) )
+      printUsage( false, options.containsKey( "--markdown" ) );
     else
-      throw new IllegalArgumentException( "error: no parameters" );
+      validateParams();
     }
 
   private void validateParams()
@@ -321,22 +353,10 @@ public class Main
 
   public void execute()
     {
-    if( ( this.params.size() == 0 ) || options.containsKey( "-h" ) || options.containsKey( "--help" ) )
-      {
-      printUsage( false );
-      return;
-      }
-
     String dot_key = "--dot";
-    String text_key = "--text";
 
     try
       {
-      if( options.containsKey( text_key ) )
-        {
-          // stub for future impl of TextDelimited
-        }
-
       Flow flow = plan( getDefaultProperties() );
 
       if( options.containsKey( dot_key ) )
