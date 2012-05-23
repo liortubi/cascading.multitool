@@ -134,4 +134,4 @@ To test,
 License
 -------
 
-See `LICENSE.txt` in this directory.
+See `apl.txt` in this directory.
