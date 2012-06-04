@@ -216,6 +216,9 @@
     <echo message="http://${publish.bucket}/${ant.project.name}/2.0/${ant.project.name}-${DSTAMP}.tgz"
           file="latest.txt"/>
 
+    <echo message="http://${publish.bucket}/${ant.project.name}/2.0/${ant.project.name}-${DSTAMP}.jar"
+          file="latest-jar.txt"/>
+
     <S3Upload verbose="true"
               accessId="${publish.aws.accessId}"
               secretKey="${publish.aws.secretKey}"
@@ -223,16 +226,15 @@
               prefix="${ant.project.name}/2.0/"
               publicRead="true">
       <fileset file="${ant.project.name}-${DSTAMP}.tgz"/>
+      <fileset dir="${build.dir}/">
+        <include name="${ant.project.name}-${DSTAMP}.jar"/>
+      </fileset>
       <fileset file="latest.txt"/>
+      <fileset file="latest-jar.txt"/>
     </S3Upload>
 
-    <property name="publish.remote.port" value="22"/>
-    <scp file="latest.txt"
-         remoteTofile="${publish.download.path}/${ant.project.name}/2.0/latest.txt"
-         keyfile="${publish.keyfile}"
-         passphrase="" port="${publish.remote.port}" trust="true"/>
-
     <delete file="latest.txt"/>
+    <delete file="latest-jar.txt"/>
 
   </target>
 
