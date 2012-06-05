@@ -1,6 +1,6 @@
 Multitool - Command Line Reference
 ==================================
-multitool [param] [param] ...
+    multitool [param] [param] ...
 
 first tap must be a <code>source</code> and last tap must be a <code>sink</code>
 
@@ -29,7 +29,7 @@ first tap must be a <code>source</code> and last tap must be a <code>sink</code>
 <tr><td><code>select</code></td><td>regex, matches are kept. matches against all fields unless args is given</td></tr>
 <tr><td><code>select.args</code></td><td>fields to match against</td></tr>
 <tr><td><code>cut</code></td><td>split the first field, and return the given fields, or all fields. 0 for first, -1 for last</td></tr>
-<tr><td><code>cut.delim</code></td><td>regex delimiter, defaut: 't' (TAB)</td></tr>
+<tr><td><code>cut.delim</code></td><td>regex delimiter, defaut: '\t' (TAB)</td></tr>
 <tr><td><code>parse</code></td><td>parse the first field with given regex</td></tr>
 <tr><td><code>parse.groups</code></td><td>regex groups, comma delimited</td></tr>
 <tr><td><code>retain</code></td><td>narrow the stream to the given fields. 0 for first, -1 for last</td></tr>
@@ -49,9 +49,9 @@ first tap must be a <code>source</code> and last tap must be a <code>sink</code>
 <tr><td><code>join.joiner</code></td><td>join type: inner, outer, left, right</td></tr>
 <tr><td><code>join.name</code></td><td>branch name</td></tr>
 <tr><td><code>concat</code></td><td>join the given fields, will join ALL by default</td></tr>
-<tr><td><code>concat.delim</code></td><td>delimiter, defaut: 't' (TAB)</td></tr>
+<tr><td><code>concat.delim</code></td><td>delimiter, defaut: '\t' (TAB)</td></tr>
 <tr><td><code>gen</code></td><td>split the first field, and return the given result fields as new tuples</td></tr>
-<tr><td><code>gen.delim</code></td><td>regex delimiter, defaut: 't' (TAB)</td></tr>
+<tr><td><code>gen.delim</code></td><td>regex delimiter, defaut: '\t' (TAB)</td></tr>
 <tr><td><code>count</code></td><td>count the number of values in the grouping</td></tr>
 <tr><td><code>sum</code></td><td>sum the values in the grouping</td></tr>
 <tr><td><code>expr</code></td><td>use java expression as function, e.g. $0.toLowerCase()</td></tr>
@@ -66,7 +66,4 @@ first tap must be a <code>source</code> and last tap must be a <code>sink</code>
 <tr><td><code>unique</code></td><td>return the first value in each grouping</td></tr>
 </table>
 
-Using Cascading 2.0.0wip-301
-
 This release is licensed under the Apache Software License 2.0.
-

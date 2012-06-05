@@ -205,7 +205,10 @@ public class Main
       System.out.println( "</table>" );
 
     System.out.println( "" );
-    printCascadingVersion();
+
+    if( !gen_markdown )
+      printCascadingVersion();
+
     printLicense();
 
     if( is_error )
