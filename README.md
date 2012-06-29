@@ -35,7 +35,7 @@ Installing
 
 This step is not necessary if you wish to run Multitool directly from
 the uncompressed distribution folder or Multitool was pre-installed
-with your Hadoop distribution. 
+with your Hadoop distribution.
 
 To see if Multitool has already been added to your PATH, type:
 
@@ -56,7 +56,7 @@ For detailed instructions:
 Choose the method that best suites your environment.
 
 If you are running Multitool on AWS Elastic MapReduce, you need to
-follow the 
+follow the
 [Elastic MapReduce instructions](https://aws.amazon.com/articles/2293?_encoding=UTF8&jiveRedirect=1)
 on the AWS site, which typically expect the
 `multitool-<release-date>.jar` to be uploaded to AWS S3.
@@ -114,11 +114,7 @@ Building
 
 To build Multitool, you may download the source code from GitHub:
 
-   https://github.com/concurrentinc/cascading.multitool/tarball/master
-
-or clone the repo:
-
-   https://github.com/concurrentinc/cascading.multitool
+   https://github.com/cascading/cascading.multitool
 
 This release will pull all dependencies from the relevant maven repos,
 including http://conjars.org
