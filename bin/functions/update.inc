@@ -16,7 +16,7 @@ Flags:
   -v|--version - specify the version of Cascading.Multitool to fetch
 USAGE
 
-mt_update_base_url="http://files.cascading.org/multitool"
+mt_update_base_url="http://files.cascading.org/multitool/2.0"
 
 mt_update_create_temp ()
 {
@@ -43,7 +43,7 @@ mt_update_curl ()
       module_exit "curl was not found in PATH"
     fi
   fi
-  
+
   if [ -n "$mt_log_verbose" ]
   then
     $CURL_BIN --progress-bar $@
@@ -81,13 +81,13 @@ mt_update_parse_latest ()
 
   if [ -z "$mt_update_latest" ]
   then
-    info "INFO Parsing version number from $mt_update_base_url/multitool-current.txt"
-    mt_update_latest=`mt_update_curl $mt_update_base_url/multitool-current.txt | grep "$mt_update_base_url.*\.tgz" | sed 's|^\([^ ]*://[^ ]*\).*|\1|g' | head -n1`
+    info "INFO Parsing version number from $mt_update_base_url/latest.txt"
+    mt_update_latest=`mt_update_curl $mt_update_base_url/latest.txt | grep "$mt_update_base_url.*\.tgz" | sed 's|^\([^ ]*://[^ ]*\).*|\1|g' | head -n1`
   fi
 
   if [ -z "$mt_update_latest" ]
   then
-    module_exit "Cannot get latest multitool from $mt_update_base_url/multitool-current.txt"
+    module_exit "Cannot get latest multitool from $mt_update_base_url/latest.txt"
   fi
 }
 
