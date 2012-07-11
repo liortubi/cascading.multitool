@@ -177,15 +177,15 @@
       <fileset dir=".">
         <include name="data/**"/>
         <include name="bin/**"/>
-        <include name="README.txt"/>
+        <include name="README.md"/>
+        <include name="COMMANDS.md"/>
+        <include name="apl.txt"/>
       </fileset>
 
       <fileset dir="${build.dir}">
         <include name="*.jar"/>
       </fileset>
     </copy>
-
-    <copy file="${src.license}" tofile="${dist}/"/>
 
     <chmod perm="u+x">
       <fileset dir="${dist}/bin">
@@ -251,7 +251,8 @@
   </target>
 
   <target name="markdown" depends="jar" description="update the CLI reference file as GitHub markdown">
-    <exec executable="${scripts.dir}/multitool" failonerror="true" output="${multitool.basedir}/COMMANDS.md" errorproperty="md.errors">
+    <exec executable="${scripts.dir}/multitool" failonerror="true" output="${multitool.basedir}/COMMANDS.md"
+          errorproperty="md.errors">
       <arg value="--markdown"/>
     </exec>
   </target>
