@@ -213,17 +213,17 @@
 
     <property file="${publish.aws.properties}"/>
 
-    <echo message="http://${publish.bucket}/${ant.project.name}/2.0/${ant.project.name}-${DSTAMP}.tgz"
+    <echo message="http://${publish.bucket}/${ant.project.name}/2.1/${ant.project.name}-${DSTAMP}.tgz"
           file="latest.txt"/>
 
-    <echo message="http://${publish.bucket}/${ant.project.name}/2.0/${ant.project.name}-${DSTAMP}.jar"
+    <echo message="http://${publish.bucket}/${ant.project.name}/2.1/${ant.project.name}-${DSTAMP}.jar"
           file="latest-jar.txt"/>
 
     <S3Upload verbose="true"
               accessId="${publish.aws.accessId}"
               secretKey="${publish.aws.secretKey}"
               bucket="${publish.bucket}"
-              prefix="${ant.project.name}/2.0/"
+              prefix="${ant.project.name}/2.1/"
               publicRead="true">
       <fileset file="${ant.project.name}-${DSTAMP}.tgz"/>
       <fileset dir="${build.dir}/">
@@ -244,10 +244,10 @@
     <ivy:settings id="ivy.conjars.settings" url="http://conjars.org/repo/ivysettings.xml"/>
 
     <ivy:retrieve file="${multitool.basedir}/ivy.xml" settingsRef="ivy.conjars.settings" conf="default"
-                  pattern="${lib.dir}/[artifact]-[revision].[ext]" sync="true"/>
+                  pattern="${lib.dir}/[artifact]-[revision](-[classifier]).[ext]" sync="true"/>
 
     <ivy:retrieve file="${multitool.basedir}/ivy.xml" settingsRef="ivy.conjars.settings" conf="test"
-                  pattern="${build.dir}/deps/[artifact]-[revision].[ext]" sync="true"/>
+                  pattern="${build.dir}/deps/[artifact]-[revision](-[classifier]).[ext]" sync="true"/>
   </target>
 
   <target name="markdown" depends="jar" description="update the CLI reference file as GitHub markdown">
