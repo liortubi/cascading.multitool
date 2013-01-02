@@ -28,6 +28,9 @@
   <property file="../build.properties"/>
   <property file="./build.properties"/>
 
+
+  <property name="release.major" value="2.2"/>
+
   <property name="src.license" location="${multitool.basedir}/apl.txt"/>
 
   <property name="src.dir" location="${multitool.basedir}/src/java"/>
@@ -213,17 +216,17 @@
 
     <property file="${publish.aws.properties}"/>
 
-    <echo message="http://${publish.bucket}/${ant.project.name}/2.1/${ant.project.name}-${DSTAMP}.tgz"
+    <echo message="http://${publish.bucket}/${ant.project.name}/${release.major}/${ant.project.name}-${DSTAMP}.tgz"
           file="latest.txt"/>
 
-    <echo message="http://${publish.bucket}/${ant.project.name}/2.1/${ant.project.name}-${DSTAMP}.jar"
+    <echo message="http://${publish.bucket}/${ant.project.name}/${release.major}/${ant.project.name}-${DSTAMP}.jar"
           file="latest-jar.txt"/>
 
     <S3Upload verbose="true"
               accessId="${publish.aws.accessId}"
               secretKey="${publish.aws.secretKey}"
               bucket="${publish.bucket}"
-              prefix="${ant.project.name}/2.1/"
+              prefix="${ant.project.name}/${release.major}/"
               publicRead="true">
       <fileset file="${ant.project.name}-${DSTAMP}.tgz"/>
       <fileset dir="${build.dir}/">

@@ -19,7 +19,7 @@
   -->
 
 <ivy-module version="2.0" xmlns:m="http://ant.apache.org/ivy/maven">
-  <info organisation="cascading" module="cascading-multitool" revision="2.1">
+  <info organisation="cascading" module="cascading-multitool" revision="2.2">
 
     <license name="GNU General Public License version 3" url="http://www.gnu.org/licenses/"/>
 
