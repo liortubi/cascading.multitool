@@ -16,7 +16,7 @@ Flags:
   -v|--version - specify the version of Cascading.Multitool to fetch
 USAGE
 
-mt_update_base_url="http://files.cascading.org/multitool/2.0"
+mt_update_base_url="http://files.cascading.org/multitool/2.1"
 
 mt_update_create_temp ()
 {
