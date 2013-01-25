@@ -52,7 +52,7 @@ it_exits_if_a_git_repo_is_detected () {
 }
 
 it_parses_the_latest_multitool_location () {
-  testing_url="http://files.cascading.org/multitool/2.0/multitool-latest.tgz"
+  testing_url="http://files.cascading.org/multitool/2.1/multitool-latest.tgz"
   CURL_BIN="echo $testing_url"
   mt_update_reject_git () {
     MT_PATH=/does/not/exist
@@ -74,7 +74,7 @@ it_complains_if_curl_fails_to_fetch_latest () {
     MT_PATH=/does/not/exist
   }
   module_exit () {
-    [ "$*" = "Cannot get latest multitool from http://files.cascading.org/multitool/2.0/latest.txt" ] && tested=1
+    [ "$*" = "Cannot get latest multitool from http://files.cascading.org/multitool/2.1/latest.txt" ] && tested=1
   }
   mt_update_create_temp () {
     [ "$tested" = "1" ] && tested=2
@@ -99,13 +99,13 @@ it_allows_a_version_specifier () {
   }
 
   route_perform update -v latest
-  test "$mt_update_latest" = "http://files.cascading.org/multitool/2.0/multitool-latest.tgz"
+  test "$mt_update_latest" = "http://files.cascading.org/multitool/2.1/multitool-latest.tgz"
 
   route_perform update --version more_latest
-  test "$mt_update_latest" = "http://files.cascading.org/multitool/2.0/multitool-more_latest.tgz"
+  test "$mt_update_latest" = "http://files.cascading.org/multitool/2.1/multitool-more_latest.tgz"
 
   route_perform update --version=super_latest
-  test "$mt_update_latest" = "http://files.cascading.org/multitool/2.0/multitool-super_latest.tgz"
+  test "$mt_update_latest" = "http://files.cascading.org/multitool/2.1/multitool-super_latest.tgz"
 }
 
 it_updates_an_existing_installation () {
