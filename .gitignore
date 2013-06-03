@@ -6,3 +6,4 @@ lib
 *.ipr
 build.properties
 dist
+*.sw[a-z]
