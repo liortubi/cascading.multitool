@@ -6,4 +6,5 @@ lib
 *.ipr
 build.properties
 dist
+.gradle
 *.sw[a-z]
