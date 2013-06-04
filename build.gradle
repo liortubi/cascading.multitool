@@ -1,4 +1,5 @@
 import java.text.SimpleDateFormat
+import java.io.FileOutputStream
 
 apply plugin:'java' 
 apply plugin: 'idea'
@@ -97,3 +98,15 @@ task tar(type: Tar, dependsOn: collectFiles){
     compression = Compression.GZIP
     from("build/assembly")
 } 
+
+
+task markdown(dependsOn: jar) << { task ->
+    Process proc = 
+        ["bin/multitool", "--markdown"].execute()
+    proc.consumeProcessErrorStream(System.err)
+    //proc.consumeProcessOutputStream(new FileOutputStream("COMMANDS.md"))
+    proc.consumeProcessOutputStream(System.out)
+    if (proc.waitFor() != 0) {
+        throw new RuntimeException('exec failed')
+    }
+}
