@@ -49,7 +49,7 @@ public class GenFactory extends PipeFactory
 
   public String[] getParametersUsage()
     {
-    return new String[]{"regex delimiter, defaut: '\\t' (TAB)"};
+    return new String[]{"regex delimiter, default: '\\t' (TAB)"};
     }
 
   public Pipe addAssembly( String value, Map<String, String> subParams, Map<String, Pipe> pipes, Pipe pipe )

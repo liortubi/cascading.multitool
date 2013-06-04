@@ -49,7 +49,7 @@ public class ConcatFactory extends PipeFactory
 
   public String[] getParametersUsage()
     {
-    return new String[]{"delimiter, defaut: '\\t' (TAB)"};
+    return new String[]{"delimiter, default: '\\t' (TAB)"};
     }
 
   public Pipe addAssembly( String value, Map<String, String> subParams, Map<String, Pipe> pipes, Pipe pipe )
