@@ -1,6 +1,11 @@
+import java.text.SimpleDateFormat
+
 apply plugin:'java' 
 apply plugin: 'idea'
 apply plugin: 'eclipse'
+
+def timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(
+                                             new Date())
 
 repositories{
     mavenLocal()
@@ -22,7 +27,22 @@ dependencies{
 }
 
 
-task mttest() << { task ->
+jar {
+  description = "Assembles a Hadoop ready jar file"
+  doFirst {
+    into('lib') {
+      from configurations.compile
+    }
+  }
+
+  manifest {
+    attributes "Main-Class": "${archivesBaseName}/Main",
+               'Build-Time': "${timestamp}"
+  }
+}
+
+
+task mtTest() << { task ->
     Process proc = 
    ["/bin/sh", "src/test/mt/helper/roundup.sh", 
       "src/test/mt/*.sh"].execute()
