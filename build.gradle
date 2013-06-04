@@ -4,8 +4,16 @@ apply plugin:'java'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 
-def timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(
-                                             new Date())
+def buildTimestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(
+                                        new Date())
+def buildDate = new SimpleDateFormat("yyyyMMdd").format(
+                                        new Date())
+def toolname = "multitool"
+
+def assemblyDirName = "build/assembly"
+
+def finalJarName = "${toolname}-${buildDate}.jar"
+
 
 repositories{
     mavenLocal()
@@ -23,12 +31,12 @@ dependencies{
     testCompile 'org.slf4j:slf4j-log4j12:1.7.5'
     testCompile 'cascading:cascading-core:2.2.+:tests'
     testCompile 'org.apache.hadoop:hadoop-test:1.0.4'
-
 }
 
 
 jar {
   description = "Assembles a Hadoop ready jar file"
+  archiveName = finalJarName
   doFirst {
     into('lib') {
       from configurations.compile
@@ -36,9 +44,15 @@ jar {
   }
 
   manifest {
-    attributes "Main-Class": "${archivesBaseName}/Main",
-               'Build-Time': "${timestamp}"
+    attributes "Main-Class": "multitool/Main",
+               'Build-Time': "${buildTimestamp}"
   }
+}
+
+
+test{
+    maxHeapSize = "756m"
+    systemProperty "hadoop.log.dir" ,"build/test/log"
 }
 
 
@@ -51,4 +65,35 @@ task mtTest() << { task ->
     if (proc.waitFor() != 0) {
         throw new RuntimeException('exec failed')
     }
+} 
+
+task collectFiles(dependsOn: [jar,test, mtTest]) << {
+    def targetDirName = "${assemblyDirName}/${toolname}-${buildDate}"
+    copy{
+        from("bin")
+        into("${targetDirName}/bin")
+    }
+    copy{
+        from("data")
+        into("${targetDirName}/data")
+    }
+    copy{
+        from(".")
+        include("apl.txt", "COMMANDS.md", "README.md")
+        into(targetDirName)
+    }
+    copy{
+        from("build/libs")
+        include(finalJarName)
+        into(targetDirName)
+
+    }
+}
+
+task tar(type: Tar, dependsOn: collectFiles){
+    description = "creates the final distribution tarball"
+    baseName = "${toolname}-${buildDate}"
+    destinationDir = new File(project.buildDir.path)
+    compression = Compression.GZIP
+    from("build/assembly")
 } 
