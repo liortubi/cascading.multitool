@@ -20,7 +20,8 @@ mt_run ()
   then
     module_exit "No arguments specified"
   else
-    $HADOOP_BIN jar $mt_jar_path $@ 2>&1 | while read line; do
+    # the -r switch on read makes sure, that we do not lose \ characters
+    $HADOOP_BIN jar $mt_jar_path $@ 2>&1 | while read -r line; do
       if echo $line | grep INFO > /dev/null; then
         info $line
       elif echo $line | grep WARN > /dev/null; then
