@@ -15,6 +15,12 @@ it_logs_a_message() {
   test "$LOG_OUTPUT" = "$LOG_INPUT"
 }
 
+it_logs_strings_with_backslashes() {
+  LOG_INPUT='we \ can \ log \ backslashes'
+  LOG_OUTPUT=`log $LOG_INPUT`
+  test "$LOG_OUTPUT" = "$LOG_INPUT"
+}
+
 it_colorizes_an_info_message() {
   LOG_INPUT='this is information'
   LOG_OUTPUT=`info "INFO $LOG_INPUT"`
