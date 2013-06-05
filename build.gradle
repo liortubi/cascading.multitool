@@ -104,8 +104,7 @@ task markdown(dependsOn: jar) << { task ->
     Process proc = 
         ["bin/multitool", "--markdown"].execute()
     proc.consumeProcessErrorStream(System.err)
-    //proc.consumeProcessOutputStream(new FileOutputStream("COMMANDS.md"))
-    proc.consumeProcessOutputStream(System.out)
+    proc.consumeProcessOutputStream(new FileOutputStream("COMMANDS.md"))
     if (proc.waitFor() != 0) {
         throw new RuntimeException('exec failed')
     }
