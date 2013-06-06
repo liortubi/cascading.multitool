@@ -49,7 +49,6 @@ dependencies{
     compile 'org.slf4j:slf4j-log4j12:1.7.5'
 
     testCompile 'junit:junit:4.11'
-    testCompile 'org.slf4j:slf4j-log4j12:1.7.5'
     testCompile 'cascading:cascading-core:2.2.+:tests'
     testCompile 'org.apache.hadoop:hadoop-test:1.0.4'
 }
@@ -89,7 +88,7 @@ task mtTest() << { task ->
 } 
 
 
-task tar(type: Tar){
+task tar(type: Tar, dependsOn: jar){
     def targetDirName = "${assemblyDirName}/${rootProject.name}-${buildDate}"
     copy{
         from("bin")
@@ -116,23 +115,14 @@ task tar(type: Tar){
     from(assemblyDirName)
 }
 
-task copyJar() << {
-    copy{
+task assembleDistribution(dependsOn: tar) << {
+     file( "${s3Upload.source}/latest.txt" ).write( "http://${s3Upload.destination}${finalTarName}" )
+     file( "${s3Upload.source}/latest-jar.txt" ).write( "http://${s3Upload.destination}${finalJarName}" )
+     copy{
         from("build/libs")
         include(finalJarName)
         into("${s3Upload.source}")
-    }
- 
-}
-
-task createLatestFiles(dependsOn: tar) << {
-     file( "${s3Upload.source}/latest.txt" ).write( "http://${s3Upload.destination}/${finalTarName}" )
-     file( "${s3Upload.source}/latest-jar.txt" ).write( "http://${s3Upload.destination}/${finalJarName}" )
-}
-
-
-task assembleDistribution(dependsOn: [tar, createLatestFiles, copyJar]) << {
-
+     }
 }
 
 
