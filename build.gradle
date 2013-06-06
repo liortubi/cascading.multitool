@@ -1,19 +1,38 @@
+/*
+ * Copyright (c) 2007-2013 Concurrent, Inc. All Rights Reserved.
+ *
+ * Project and contact information: http://www.cascading.org/
+ *
+ * This file is part of the Cascading project.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
 import java.text.SimpleDateFormat
 import java.io.FileOutputStream
 
+apply from: 'etc/version.gradle'
+apply from: 'etc/s3Upload.gradle'
 apply plugin:'java' 
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 
-def buildTimestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(
+ext.buildTimestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(
                                         new Date())
-def buildDate = new SimpleDateFormat("yyyyMMdd").format(
-                                        new Date())
-def toolname = "multitool"
-
-def assemblyDirName = "build/assembly"
-
-def finalJarName = "${toolname}-${buildDate}.jar"
+ext.buildDate = new SimpleDateFormat("yyyyMMdd").format( new Date())
+ext.finalJarName = "${rootProject.name}-${buildDate}.jar"
+ext.assemblyDirName = "build/assemble"
 
 
 repositories{
@@ -58,8 +77,8 @@ test{
 
 
 task mtTest() << { task ->
-    Process proc = 
-   ["/bin/sh", "src/test/mt/helper/roundup.sh", 
+    description = "runs the test suite for the shell script wrapper"
+    Process proc = ["/bin/sh", "src/test/mt/helper/roundup.sh", 
       "src/test/mt/*.sh"].execute()
     proc.consumeProcessErrorStream(System.err)
     proc.consumeProcessOutputStream(System.out)
@@ -69,7 +88,9 @@ task mtTest() << { task ->
 } 
 
 task collectFiles(dependsOn: [jar,test, mtTest]) << {
-    def targetDirName = "${assemblyDirName}/${toolname}-${buildDate}"
+    description = "copies all files for the distribution in one directory"
+
+    def targetDirName = "${assemblyDirName}/${rootProject.name}-${buildDate}"
     copy{
         from("bin")
         into("${targetDirName}/bin")
@@ -91,16 +112,17 @@ task collectFiles(dependsOn: [jar,test, mtTest]) << {
     }
 }
 
-task tar(type: Tar, dependsOn: collectFiles){
+task distAssemble(type: Tar, dependsOn: collectFiles){
     description = "creates the final distribution tarball"
-    baseName = "${toolname}-${buildDate}"
-    destinationDir = new File(project.buildDir.path)
+    baseName = "${rootProject.name}-${buildDate}"
+    destinationDir = new File(project.buildDir.path + "/publish")
     compression = Compression.GZIP
-    from("build/assembly")
+    from(assemblyDirName)
 } 
 
 
 task markdown(dependsOn: jar) << { task ->
+    description = "updates COMMANDS.md markdown file"
     Process proc = 
         ["bin/multitool", "--markdown"].execute()
     proc.consumeProcessErrorStream(System.err)
