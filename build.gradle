@@ -88,8 +88,8 @@ test{
 
 task mtTest() << { task ->
     description = "runs the test suite for the shell script wrapper"
-    Process proc = ["/bin/sh", "src/test/mt/helper/roundup.sh", 
-      "src/test/mt/*.sh"].execute()
+    Process proc = ["/bin/sh", "src/test/shell/mt/helper/roundup.sh", 
+      "src/test/shell/mt/*.sh"].execute()
     proc.consumeProcessErrorStream(System.err)
     proc.consumeProcessOutputStream(System.out)
     if (proc.waitFor() != 0) {
