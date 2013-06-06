@@ -32,6 +32,7 @@ ext.buildTimestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(
                                         new Date())
 ext.buildDate = new SimpleDateFormat("yyyyMMdd").format( new Date())
 ext.finalJarName = "${rootProject.name}-${buildDate}.jar"
+ext.finalTarName = "${rootProject.name}-${buildDate}.tgz"
 ext.assemblyDirName = "build/assemble"
 
 
@@ -87,9 +88,8 @@ task mtTest() << { task ->
     }
 } 
 
-task collectFiles(dependsOn: [jar,test, mtTest]) << {
-    description = "copies all files for the distribution in one directory"
 
+task tar(type: Tar){
     def targetDirName = "${assemblyDirName}/${rootProject.name}-${buildDate}"
     copy{
         from("bin")
@@ -108,17 +108,32 @@ task collectFiles(dependsOn: [jar,test, mtTest]) << {
         from("build/libs")
         include(finalJarName)
         into(targetDirName)
-
     }
-}
 
-task distAssemble(type: Tar, dependsOn: collectFiles){
-    description = "creates the final distribution tarball"
     baseName = "${rootProject.name}-${buildDate}"
-    destinationDir = new File(project.buildDir.path + "/publish")
+    destinationDir = new File("${s3Upload.source}")
     compression = Compression.GZIP
     from(assemblyDirName)
-} 
+}
+
+task copyJar() << {
+    copy{
+        from("build/libs")
+        include(finalJarName)
+        into("${s3Upload.source}")
+    }
+ 
+}
+
+task createLatestFiles(dependsOn: tar) << {
+     file( "${s3Upload.source}/latest.txt" ).write( "http://${s3Upload.destination}/${finalTarName}" )
+     file( "${s3Upload.source}/latest-jar.txt" ).write( "http://${s3Upload.destination}/${finalJarName}" )
+}
+
+
+task assembleDistribution(dependsOn: [tar, createLatestFiles, copyJar]) << {
+
+}
 
 
 task markdown(dependsOn: jar) << { task ->
