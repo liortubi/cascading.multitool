@@ -17,16 +17,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
 import java.text.SimpleDateFormat
 import java.io.FileOutputStream
 
 apply from: 'etc/version.gradle'
 apply from: 'etc/s3Upload.gradle'
+
 apply plugin:'java' 
+apply plugin:'maven' 
 apply plugin: 'idea'
 apply plugin: 'eclipse'
+
+apply from: 'etc/providedCompile.gradle'
 
 ext.buildTimestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(
                                         new Date())
@@ -34,6 +36,14 @@ ext.buildDate = new SimpleDateFormat("yyyyMMdd").format( new Date())
 ext.finalJarName = "${rootProject.name}-${buildDate}.jar"
 ext.finalTarName = "${rootProject.name}-${buildDate}.tgz"
 ext.assemblyDirName = "build/assemble"
+ext.hadoopVersion = "1.1.2"
+
+ext.cascadingVersion = '2.2.0-+'
+
+// set property to use locally installed cascading builds
+// otherwise wip releases will be pulled from conjars
+if( System.properties[ 'multitool.release.local' ] ) 
+      cascadingVersion = '2.2.0-wip-dev'
 
 
 repositories{
@@ -42,15 +52,16 @@ repositories{
     mavenRepo name: 'conjars', url: 'http://conjars.org/repo/'
 }
 
-dependencies{
-    compile 'cascading:cascading-core:2.2.+'
-    compile 'cascading:cascading-hadoop:2.2.+'
-    compile 'org.apache.hadoop:hadoop-core:1.0.4'
-    compile 'org.slf4j:slf4j-log4j12:1.7.5'
 
-    testCompile 'junit:junit:4.11'
-    testCompile 'cascading:cascading-core:2.2.+:tests'
-    testCompile 'org.apache.hadoop:hadoop-test:1.0.4'
+dependencies{
+    compile group: 'cascading', name: 'cascading-core', version: cascadingVersion
+    compile group: 'cascading', name: 'cascading-hadoop', version: cascadingVersion
+
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    testCompile group: 'cascading', name:'cascading-core', version: cascadingVersion, classifier: 'tests', changing: true
+    
+    providedCompile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.5'
+    providedCompile group: 'org.apache.hadoop', name: 'hadoop-core', version: hadoopVersion
 }
 
 
@@ -68,7 +79,6 @@ jar {
                'Build-Time': "${buildTimestamp}"
   }
 }
-
 
 test{
     maxHeapSize = "756m"
@@ -115,7 +125,8 @@ task tar(type: Tar, dependsOn: jar){
     from(assemblyDirName)
 }
 
-task assembleDistribution(dependsOn: tar) << {
+task assembleDistribution(dependsOn: [mtTest, jar]) << {
+
      file( "${s3Upload.source}/latest.txt" ).write( "http://${s3Upload.destination}${finalTarName}" )
      file( "${s3Upload.source}/latest-jar.txt" ).write( "http://${s3Upload.destination}${finalJarName}" )
      copy{
