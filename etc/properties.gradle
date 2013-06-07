@@ -47,5 +47,5 @@ if( System.properties[ 'build.vcs.number' ] ){
     ext.commit = System.properties[ 'build.vcs.number'  ]
 }
 else{
-    ext.commit = "NON-RELEASE-BUILD"
+    ext.commit = "dev"
 }

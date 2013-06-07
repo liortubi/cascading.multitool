@@ -24,8 +24,8 @@ import org.apache.tools.ant.filters.ReplaceTokens
 apply from: 'etc/version.gradle'
 apply from: 'etc/s3Upload.gradle'
 
-apply plugin:'java' 
-apply plugin:'maven' 
+apply plugin: 'java' 
+apply plugin: 'maven' 
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 
@@ -72,10 +72,13 @@ jar {
   into("multitool"){
       from("version.properties"){ 
           filter( ReplaceTokens, tokens: [
-                  'builddate': "${buildDate}".toString(), 
+                  'releasedate': "${buildDate}".toString(), 
                   'commit': "${commit}".toString()
           ] ) 
       } 
+       if( !System.properties[ 'multitool.release.final' ] ) 
+           from "${buildDir}/build.number.properties"
+
   }
   doFirst {
     into('lib') {

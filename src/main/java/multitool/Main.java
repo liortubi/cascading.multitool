@@ -61,6 +61,7 @@ import multitool.factory.SourceFactory;
 import multitool.factory.SumFactory;
 import multitool.factory.TapFactory;
 import multitool.factory.UniqueFactory;
+import multitool.util.Version;
 import org.apache.hadoop.io.compress.GzipCodec;
 import org.apache.hadoop.mapred.ClusterStatus;
 import org.apache.hadoop.mapred.JobClient;
@@ -120,6 +121,7 @@ public class Main
 
   public static void main( String[] args )
     {
+
     Map<String, String> options = new LinkedHashMap<String, String>();
     List<String[]> params = new LinkedList<String[]>();
 
@@ -329,6 +331,8 @@ public class Main
     properties.setProperty( "mapred.reduce.tasks.speculative.execution", "false" );
     properties.setProperty( "mapred.map.tasks.speculative.execution", "false" );
 
+    AppProps.addApplicationFramework(properties, Version.MULTITOOL + ":" + Version.getReleaseFull());
+
 //    int trackers = getNumTaskTrackers();
 //    properties.setProperty( "mapred.map.tasks", "" );
 //    properties.setProperty( "mapred.reduce.tasks", "" );
@@ -361,7 +365,7 @@ public class Main
     try
       {
       Flow flow = plan( getDefaultProperties() );
-
+      Version.printBanner();
       if( options.containsKey( dot_key ) )
         {
         String dot_file = options.get( dot_key );
