@@ -19,6 +19,7 @@
  */
 import java.text.SimpleDateFormat
 import java.io.FileOutputStream
+import org.apache.tools.ant.filters.ReplaceTokens
 
 apply from: 'etc/version.gradle'
 apply from: 'etc/s3Upload.gradle'
@@ -68,6 +69,11 @@ dependencies{
 jar {
   description = "Assembles a Hadoop ready jar file"
   archiveName = finalJarName
+  from("version.properties"){ 
+      filter( ReplaceTokens, tokens: [
+              'builddate': "${buildDate}".toString(), 'commit': "${commit}".toString()
+      ] ) 
+  } 
   doFirst {
     into('lib') {
       from configurations.compile
