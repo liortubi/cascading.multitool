@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2012 Concurrent, Inc. All Rights Reserved.
+ * Copyright (c) 2007-2013 Concurrent, Inc. All Rights Reserved.
  *
  * Project and contact information: http://www.cascading.org/
  *
@@ -203,7 +203,7 @@ public class Main
     printSubHeading( gen_markdown, "operations:" );
     printFactoryUsage( gen_markdown, PIPE_FACTORIES );
 
-    if ( gen_markdown )
+    if( gen_markdown )
       System.out.println( "</table>" );
 
     System.out.println( "" );
@@ -331,7 +331,7 @@ public class Main
     properties.setProperty( "mapred.reduce.tasks.speculative.execution", "false" );
     properties.setProperty( "mapred.map.tasks.speculative.execution", "false" );
 
-    AppProps.addApplicationFramework(properties, Version.MULTITOOL + ":" + Version.getReleaseFull());
+    AppProps.addApplicationFramework( properties, Version.MULTITOOL + ":" + Version.getReleaseFull() );
 
 //    int trackers = getNumTaskTrackers();
 //    properties.setProperty( "mapred.map.tasks", "" );

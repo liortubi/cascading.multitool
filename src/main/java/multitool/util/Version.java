@@ -31,122 +31,116 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class Version
-{
-    private static final Logger LOG = LoggerFactory.getLogger( Version.class );
+  {
+  private static final Logger LOG = LoggerFactory.getLogger( Version.class );
 
-    private static boolean printedVersion = false;
+  private static boolean printedVersion = false;
 
-    public static final String MULTITOOL_BUILD_NUMBER = "multitool.build.number";
-    public static final String MULTITOOL_RELEASE_DATE= "multitool.release.releasedate";
-    public static final String MULTITOOL_RELEASE_COMMIT = "multitool.release.commit";
+  public static final String MULTITOOL_BUILD_NUMBER = "multitool.build.number";
+  public static final String MULTITOOL_RELEASE_DATE = "multitool.release.releasedate";
+  public static final String MULTITOOL_RELEASE_COMMIT = "multitool.release.commit";
 
-    public static final String MULTITOOL = "Multitool";
+  public static final String MULTITOOL = "Multitool";
 
-    public static Properties versionProperties;
+  public static Properties versionProperties;
 
-    private static synchronized Properties getVersionProperties()
+  private static synchronized Properties getVersionProperties()
     {
-        try
+    try
+      {
+      if( versionProperties == null )
         {
-            if( versionProperties == null )
-            {
-                versionProperties = loadVersionProperties();
+        versionProperties = loadVersionProperties();
 
-                if( versionProperties.isEmpty() )
-                    LOG.warn( "unable to load version information" );
-            }
+        if( versionProperties.isEmpty() )
+          LOG.warn( "unable to load version information" );
         }
-        catch( IOException exception )
-        {
-            LOG.warn( "unable to load version information", exception );
-            versionProperties = new Properties();
-        }
+      }
+    catch( IOException exception )
+      {
+      LOG.warn( "unable to load version information", exception );
+      versionProperties = new Properties();
+      }
 
-        return versionProperties;
+    return versionProperties;
     }
 
-    public static synchronized void printBanner()
+  public static synchronized void printBanner()
     {
-        // only print once
-        if( printedVersion )
-            return;
+    // only print once
+    if( printedVersion )
+      return;
 
-        printedVersion = true;
+    printedVersion = true;
 
-        String version = getVersionString();
+    String version = getVersionString();
 
-        if( version != null )
-            LOG.info( version );
+    if( version != null )
+      LOG.info( version );
     }
 
-    public static String getVersionString()
+  public static String getVersionString()
     {
-        if( getVersionProperties().isEmpty() )
-            return null;
+    if( getVersionProperties().isEmpty() )
+      return null;
 
-        String releaseVersion;
+    String releaseVersion;
 
-        if( getReleaseBuild() == null || getReleaseBuild().isEmpty() )
-            releaseVersion = String.format( "Concurrent, Inc - %s %s", MULTITOOL, getReleaseFull() );
-        else
-            releaseVersion = String.format( "Concurrent, Inc - %s %s-%s", MULTITOOL, getReleaseFull(), getReleaseBuild() );
+    if( getReleaseBuild() == null || getReleaseBuild().isEmpty() )
+      releaseVersion = String.format( "Concurrent, Inc - %s %s", MULTITOOL, getReleaseFull() );
+    else
+      releaseVersion = String.format( "Concurrent, Inc - %s %s-%s", MULTITOOL, getReleaseFull(), getReleaseBuild() );
 
-        return releaseVersion;
+    return releaseVersion;
     }
 
-    public static String getRelease()
+  public static String getRelease()
     {
-        if( getVersionProperties().isEmpty() )
-            return null;
+    if( getVersionProperties().isEmpty() )
+      return null;
 
-        if( getReleaseBuild() == null || getReleaseBuild().isEmpty() )
-            return String.format( "%s", getReleaseFull() );
-        else
-            return String.format( "%s-%s", getReleaseFull(), getReleaseBuild() );
+    if( getReleaseBuild() == null || getReleaseBuild().isEmpty() )
+      return String.format( "%s", getReleaseFull() );
+    else
+      return String.format( "%s-%s", getReleaseFull(), getReleaseBuild() );
     }
 
-    public static String getReleaseFull()
+  public static String getReleaseFull()
     {
-        return String.format( "%s-%s", getReleaseDate(), getReleaseCommit() );
+    return String.format( "%s-%s", getReleaseDate(), getReleaseCommit() );
     }
 
-    public static String getReleaseBuild()
+  public static String getReleaseBuild()
     {
-        return getVersionProperties().getProperty( MULTITOOL_BUILD_NUMBER );
+    return getVersionProperties().getProperty( MULTITOOL_BUILD_NUMBER );
     }
 
-    public static String getReleaseCommit()
+  public static String getReleaseCommit()
     {
-        return getVersionProperties().getProperty( MULTITOOL_RELEASE_COMMIT );
+    return getVersionProperties().getProperty( MULTITOOL_RELEASE_COMMIT );
     }
 
-    public static String getReleaseDate()
+  public static String getReleaseDate()
     {
-        return getVersionProperties().getProperty( MULTITOOL_RELEASE_DATE );
+    return getVersionProperties().getProperty( MULTITOOL_RELEASE_DATE );
     }
 
-
-
-    public static Properties loadVersionProperties() throws IOException
+  public static Properties loadVersionProperties() throws IOException
     {
-        Properties properties = new Properties();
+    Properties properties = new Properties();
 
-        InputStream stream = Version.class.getClassLoader().getResourceAsStream( "multitool/version.properties" );
+    InputStream stream = Version.class.getClassLoader().getResourceAsStream( "multitool/version.properties" );
 
-        if( stream == null )
-        {
-            return properties;
-        }
-        properties.load( stream );
+    if( stream == null )
+      return properties;
 
-        stream = Version.class.getClassLoader().getResourceAsStream( "multitool/build.number.properties" );
+    properties.load( stream );
 
-        if( stream != null )
-        {
-            properties.load( stream );
-        }
+    stream = Version.class.getClassLoader().getResourceAsStream( "multitool/build.number.properties" );
 
+    if( stream != null )
+      properties.load( stream );
 
-        return properties;
+    return properties;
     }
-}
+  }
