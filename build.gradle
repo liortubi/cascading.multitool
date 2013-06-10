@@ -17,23 +17,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import java.text.SimpleDateFormat
-import java.io.FileOutputStream
+
 import org.apache.tools.ant.filters.ReplaceTokens
+
+import java.text.SimpleDateFormat
 
 apply from: 'etc/version.gradle'
 apply from: 'etc/s3Upload.gradle'
 
-apply plugin: 'java' 
-apply plugin: 'maven' 
+apply plugin: 'java'
+apply plugin: 'maven'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 
 apply from: 'etc/providedCompile.gradle'
 
-ext.buildTimestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(
-                                        new Date())
-ext.buildDate = new SimpleDateFormat("yyyyMMdd").format( new Date())
+ext.buildTimestamp = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" ).format(
+        new Date() )
+ext.buildDate = new SimpleDateFormat( "yyyyMMdd" ).format( new Date() )
 ext.finalJarName = "${rootProject.name}-${buildDate}.jar"
 ext.finalTarName = "${rootProject.name}-${buildDate}.tgz"
 ext.assemblyDirName = "build/assemble"
@@ -43,129 +44,126 @@ ext.cascadingVersion = '2.2.0-+'
 
 // set property to use locally installed cascading builds
 // otherwise wip releases will be pulled from conjars
-if( System.properties[ 'multitool.release.local' ] ) 
-      cascadingVersion = '2.2.0-wip-dev'
+if( System.properties[ 'multitool.release.local' ] )
+  cascadingVersion = '2.2.0-wip-dev'
 
-repositories{
-    mavenLocal()
-    mavenCentral()
-    mavenRepo name: 'conjars', url: 'http://conjars.org/repo/'
+repositories {
+  mavenLocal()
+  mavenCentral()
+  mavenRepo name: 'conjars', url: 'http://conjars.org/repo/'
 }
 
-dependencies{
-    compile group: 'cascading', name: 'cascading-core', version: cascadingVersion
-    compile group: 'cascading', name: 'cascading-hadoop', version: cascadingVersion
+dependencies {
+  compile group: 'cascading', name: 'cascading-core', version: cascadingVersion
+  compile group: 'cascading', name: 'cascading-hadoop', version: cascadingVersion
 
-    testCompile group: 'junit', name: 'junit', version: '4.11'
-    testCompile group: 'cascading', name:'cascading-core', version: cascadingVersion, classifier: 'tests', changing: true
-    testCompile( group: 'org.apache.hadoop', name: 'hadoop-test', version: hadoopVersion ){
-        exclude group: 'oro'
-    }
-    testCompile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.6.1'
-    
-    providedCompile( group: 'org.slf4j', name: 'slf4j-api', version: '1.6.1')
+  testCompile group: 'junit', name: 'junit', version: '4.11'
+  testCompile group: 'cascading', name: 'cascading-core', version: cascadingVersion, classifier: 'tests', changing: true
+  testCompile( group: 'org.apache.hadoop', name: 'hadoop-test', version: hadoopVersion ) {
+    exclude group: 'oro'
+  }
+  testCompile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.6.1'
 
-    providedCompile( group: 'org.apache.hadoop', name: 'hadoop-core', version: hadoopVersion) { 
-       exclude group: 'ant'
-       exclude group: 'junit'
-       exclude group: 'oro' // causes transient build maven failures, ftw
-    }
+  providedCompile( group: 'org.slf4j', name: 'slf4j-api', version: '1.6.1' )
+
+  providedCompile( group: 'org.apache.hadoop', name: 'hadoop-core', version: hadoopVersion ) {
+    exclude group: 'ant'
+    exclude group: 'junit'
+    exclude group: 'oro' // causes transient build maven failures, ftw
+  }
 }
 
 jar {
   description = "Assembles a Hadoop ready jar file"
   archiveName = finalJarName
-  into("multitool"){
-      from("version.properties"){ 
-          filter( ReplaceTokens, tokens: [
-                  'releasedate': "${buildDate}".toString(), 
-                  'commit': "${commit}".toString()
-          ] ) 
-      } 
-       if( !System.properties[ 'multitool.release.final' ] ) 
-           from "${buildDir}/build.number.properties"
+  into( "multitool" ) {
+    from( "version.properties" ) {
+      filter( ReplaceTokens, tokens: [
+              'releasedate': "${buildDate}".toString(),
+              'commit': "${commit}".toString()
+      ] )
+    }
+    if( !System.properties[ 'multitool.release.final' ] )
+      from "${buildDir}/build.number.properties"
 
   }
   doFirst {
-    into('lib') {
+    into( 'lib' ) {
       from configurations.compile
     }
   }
 
   manifest {
     attributes "Main-Class": "multitool/Main",
-               'Build-Time': "${buildTimestamp}"
+            'Build-Time': "${buildTimestamp}"
   }
 }
 
-test{
-    maxHeapSize = "756m"
-    systemProperty "hadoop.log.dir" ,"build/test/log"
+test {
+  maxHeapSize = "756m"
+  systemProperty "hadoop.log.dir", "build/test/log"
 }
-
 
 task mtTest() << { task ->
-    description = "runs the test suite for the shell script wrapper"
-    Process proc = ["/bin/sh", "src/test/shell/mt/helper/roundup.sh", 
-      "src/test/shell/mt/*.sh"].execute()
-    proc.consumeProcessErrorStream(System.err)
-    proc.consumeProcessOutputStream(System.out)
-    if (proc.waitFor() != 0) {
-        throw new RuntimeException('exec failed')
-    }
-} 
-
-
-task assembleTarballStructure(dependsOn: jar) << {
-    def targetDirName = "${assemblyDirName}/${rootProject.name}-${buildDate}"
-    copy{
-        from("bin")
-        into("${targetDirName}/bin")
-    }
-    copy{
-        from("data")
-        into("${targetDirName}/data")
-    }
-    copy{
-        from(".")
-        include("apl.txt", "COMMANDS.md", "README.md")
-        into(targetDirName)
-    }
-    copy{
-        from("build/libs")
-        include(finalJarName)
-        into(targetDirName)
-    }
-
+  description = "runs the test suite for the shell script wrapper"
+  Process proc = ["/bin/sh", "src/test/shell/mt/helper/roundup.sh",
+          "src/test/shell/mt/*.sh"].execute()
+  proc.consumeProcessErrorStream( System.err )
+  proc.consumeProcessOutputStream( System.out )
+  if( proc.waitFor() != 0 )
+  {
+    throw new RuntimeException( 'exec failed' )
+  }
 }
 
-task buildTarball(type: Tar, dependsOn: assembleTarballStructure){
-    baseName = "${rootProject.name}-${buildDate}"
-    destinationDir = new File("${s3Upload.source}")
-    compression = Compression.GZIP
-    from(assemblyDirName)
+task assembleTarballStructure( dependsOn: jar ) << {
+  def targetDirName = "${assemblyDirName}/${rootProject.name}-${buildDate}"
+  copy {
+    from( "bin" )
+    into( "${targetDirName}/bin" )
+  }
+  copy {
+    from( "data" )
+    into( "${targetDirName}/data" )
+  }
+  copy {
+    from( "." )
+    include( "apl.txt", "COMMANDS.md", "README.md" )
+    into( targetDirName )
+  }
+  copy {
+    from( "build/libs" )
+    include( finalJarName )
+    into( targetDirName )
+  }
 }
 
-task assembleDist(dependsOn: [buildTarball]) << {
-
-     file( "${s3Upload.source}/latest.txt" ).write( "http://${s3Upload.destination}${finalTarName}" )
-     file( "${s3Upload.source}/latest-jar.txt" ).write( "http://${s3Upload.destination}${finalJarName}" )
-     copy{
-        from("build/libs")
-        include(finalJarName)
-        into("${s3Upload.source}")
-     }
-     s3Upload.dependsOn =  [assembleDist, test, mtTest]
+task buildTarball( type: Tar, dependsOn: assembleTarballStructure ) {
+  baseName = "${rootProject.name}-${buildDate}"
+  destinationDir = new File( "${s3Upload.source}" )
+  compression = Compression.GZIP
+  from( assemblyDirName )
 }
 
+task assembleDist( dependsOn: [buildTarball] ) << {
 
-task markdown(dependsOn: jar) << { task ->
-    description = "updates COMMANDS.md markdown file"
-    Process proc = 
-        ["bin/multitool", "--markdown"].execute()
-    proc.consumeProcessErrorStream(System.err)
-    proc.consumeProcessOutputStream(new FileOutputStream("COMMANDS.md"))
-    if (proc.waitFor() != 0) {
-        throw new RuntimeException('exec failed')
-    }
+  file( "${s3Upload.source}/latest.txt" ).write( "http://${s3Upload.destination}${finalTarName}" )
+  file( "${s3Upload.source}/latest-jar.txt" ).write( "http://${s3Upload.destination}${finalJarName}" )
+  copy {
+    from( "build/libs" )
+    include( finalJarName )
+    into( "${s3Upload.source}" )
+  }
+}
+
+task markdown( dependsOn: jar ) << { task ->
+  description = "updates COMMANDS.md markdown file"
+  Process proc =
+    ["bin/multitool", "--markdown"].execute()
+  proc.consumeProcessErrorStream( System.err )
+  proc.consumeProcessOutputStream( new FileOutputStream( "COMMANDS.md" ) )
+  if( proc.waitFor() != 0 )
+  {
+    throw new RuntimeException( 'exec failed' )
+  }
 }
