@@ -436,7 +436,7 @@ public class Main
     if( sinks.isEmpty() )
       throw new IllegalArgumentException( "error: must have one sink" );
 
-    return new HadoopFlowConnector( properties ).connect( "multitool", sources, sinks, currentPipe );
+    return new HadoopFlowConnector( properties ).connect( "multitool", sources, sinks, pipes.values().toArray(new Pipe[0]) );
     }
 
   private Map<String, String> getSubParams( String key, ListIterator<String[]> iterator )
